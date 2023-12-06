@@ -17,10 +17,20 @@ public:
     // Surcharge de l'opérateur << pour afficher la grille Sudoku
     friend std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku);
 
-    // Méthodes helper pour tester la validité d'une valeur
+    // Méthode helper pour tester si une valeur peut être positionnée dans une case
+    bool canPlaceValue(int row, int col, int value) const;
+
+    // Méthode helper pour tester la validité d'une valeur dans une ligne
     bool isValidInRow(int row, int value) const;
+
+    // Méthode helper pour tester la validité d'une valeur dans une colonne
     bool isValidInCol(int col, int value) const;
+
+    // Méthode helper pour tester la validité d'une valeur dans un carré élémentaire
     bool isValidInSquare(int row, int col, int value) const;
+
+    // Méthode helper qui appelle les trois tests précédents
+    bool isValidPlacement(int row, int col, int value) const;
 
     // Méthode helper pour résoudre la grille générée
     bool solve();
