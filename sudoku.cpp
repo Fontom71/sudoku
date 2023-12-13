@@ -12,16 +12,16 @@ Sudoku::Sudoku(int complexity) : Sudoku() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(1, 9);
 
-    // Le niveau de complexité détermine le nombre de cases pré-remplies
-    int minFilledCells = 81 - 5 * complexity; // Exemple de formule, ajustez selon vos besoins
-    int maxFilledCells = 81 - 4 * complexity; // Exemple de formule, ajustez selon vos besoins
+    // Le niveau de complexité détermine le nombre de cases pré-remplies, plus la complexité est élevée, moins il y a de cases pré-remplies
+    int minFilledCells = 20 - complexity * 5;
+    int maxFilledCells = 30 - complexity * 5;
 
     std::uniform_int_distribution<int> cellsDist(minFilledCells, maxFilledCells);
 
     int filledCells = cellsDist(gen);
 
     // Génération des cases pré-remplies
-    for (int i = 0; i < filledCells; ++i) {
+    for (int i = 0; i < filledCells; i++) {
         int row = dist(gen) - 1;
         int col = dist(gen) - 1;
         int value = dist(gen);
@@ -31,7 +31,7 @@ Sudoku::Sudoku(int complexity) : Sudoku() {
             grid[row][col] = value;
         } else {
             // Si la valeur n'est pas valide, réessayez avec une nouvelle valeur
-            --i;
+            i--;
         }
     }
 }
@@ -94,6 +94,7 @@ bool Sudoku::isValidInBox(int row, int col, int value) const {
 
 bool Sudoku::solve()
 {
+    recursiveCalls++;
     int row, col;
 
     // Si la grille est complétée, on a terminé
@@ -130,4 +131,8 @@ bool Sudoku::findUnassignedLocation(int& row, int& col) const {
         }
     }
     return false;
+}
+
+int Sudoku::getRecursiveCalls() const {
+    return recursiveCalls;
 }

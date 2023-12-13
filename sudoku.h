@@ -6,6 +6,7 @@
 class Sudoku {
 private:
     std::array<std::array<int, 9>, 9> grid; // Utilisation d'un tableau bidimensionnel de 9*9
+    int recursiveCalls = 0; // Nombre d'appels récursifs pour la résolution de la grille
 
 public:
     // Constructeur par défaut initialisant la grille avec des valeurs nulles
@@ -34,4 +35,7 @@ public:
 
     // Méthode helper pour résoudre la grille générée
     bool solve();
+
+    // Getter pour le nombre d'appels récursifs
+    int getRecursiveCalls() const;
 };

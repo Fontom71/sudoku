@@ -4,10 +4,10 @@
 
 int main() {
     // Test de la classe Sudoku
-    /*Sudoku sudoku; // Génération de la grille avec un niveau de complexité de 20
+    Sudoku sudoku;
 
     // Affichage de la grille générée
-    std::cout << "Grille générée :" << std::endl;
+    std::cout << "Grille generee :" << std::endl;
     std::cout << sudoku;
 
     // Test des nouvelles fonctions
@@ -18,30 +18,29 @@ int main() {
     std::cout << "Test de placement pour la valeur " << testValue
               << " dans la case (" << testRow << ", " << testCol << "): ";
 
-    if (sudoku.isValidPlacement(testRow, testCol, testValue)) {
+    if (sudoku.isSafe(testRow, testCol, testValue)) {
         std::cout << "Valide." << std::endl;
     } else {
         std::cout << "Invalide." << std::endl;
     }
 
-    // Test de la génération de grilles Sudoku avec différents niveaux de complexité
-    for (int complexity = 1; complexity <= 5; ++complexity) {
+    // Test de la résolution de grilles Sudoku avec différents niveaux de complexité
+    for (int complexity = 1; complexity <= 5; complexity++) {
         Sudoku sudoku(complexity);
 
-        std::cout << "Grille générée avec un niveau de complexité " << complexity << ":" << std::endl;
+        std::cout << "Grille generee avec un niveau de complexite " << complexity << ":" << std::endl;
         std::cout << sudoku;
-        std::cout << "--------------------------------------------" << std::endl;
-    }*/
 
-    // Test de la résolution de grilles Sudoku avec différents niveaux de complexité
-    Sudoku sudokuEasy;
-    std::cout << sudokuEasy << std::endl;
-    // Résolvez la grille
-    if (sudokuEasy.solve()) {
-        std::cout << "\nGrille resolue :\n";
-        std::cout << sudokuEasy << std::endl;
-    } else {
-        std::cout << "\nLa grille n'a pas de solution.\n";
+        auto start = std::chrono::high_resolution_clock::now();
+        if (sudoku.solve()) {
+            auto end = std::chrono::high_resolution_clock::now();
+            std::cout << "Grille resolue en " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms :" << std::endl;
+            std::cout << "Nombre d'appels recursifs : " << sudoku.getRecursiveCalls() << std::endl;
+            std::cout << sudoku;
+        } else {
+            std::cout << "Grille non resolue." << std::endl;
+        }
+        std::cout << "--------------------------------------------" << std::endl;
     }
 
     return 0;
