@@ -1,8 +1,10 @@
 #include "Sudoku.h"
+#include <iostream>
+#include <chrono>
 
 int main() {
     // Test de la classe Sudoku
-    Sudoku sudoku; // Génération de la grille avec un niveau de complexité de 20
+    /*Sudoku sudoku; // Génération de la grille avec un niveau de complexité de 20
 
     // Affichage de la grille générée
     std::cout << "Grille générée :" << std::endl;
@@ -29,6 +31,17 @@ int main() {
         std::cout << "Grille générée avec un niveau de complexité " << complexity << ":" << std::endl;
         std::cout << sudoku;
         std::cout << "--------------------------------------------" << std::endl;
+    }*/
+
+    // Test de la résolution de grilles Sudoku avec différents niveaux de complexité
+    Sudoku sudokuEasy;
+    std::cout << sudokuEasy << std::endl;
+    // Résolvez la grille
+    if (sudokuEasy.solve()) {
+        std::cout << "\nGrille resolue :\n";
+        std::cout << sudokuEasy << std::endl;
+    } else {
+        std::cout << "\nLa grille n'a pas de solution.\n";
     }
 
     return 0;

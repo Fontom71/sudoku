@@ -18,7 +18,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku);
 
     // Méthode helper pour tester si une valeur peut être positionnée dans une case
-    bool canPlaceValue(int row, int col, int value) const;
+    bool isSafe(int row, int col, int value) const;
 
     // Méthode helper pour tester la validité d'une valeur dans une ligne
     bool isValidInRow(int row, int value) const;
@@ -27,10 +27,10 @@ public:
     bool isValidInCol(int col, int value) const;
 
     // Méthode helper pour tester la validité d'une valeur dans un carré élémentaire
-    bool isValidInSquare(int row, int col, int value) const;
+    bool isValidInBox(int row, int col, int value) const;
 
-    // Méthode helper qui appelle les trois tests précédents
-    bool isValidPlacement(int row, int col, int value) const;
+    // Méthode helper pour trouver la prochaine case vide
+    bool findUnassignedLocation(int& row, int& col) const;
 
     // Méthode helper pour résoudre la grille générée
     bool solve();
