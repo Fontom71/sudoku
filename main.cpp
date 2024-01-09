@@ -4,7 +4,7 @@
 
 int main() {
     // Test de la classe Sudoku
-    Sudoku sudoku;
+    /*Sudoku sudoku;
 
     // Affichage de la grille générée
     std::cout << "Grille generee :" << std::endl;
@@ -41,6 +41,30 @@ int main() {
             std::cout << "Grille non resolue." << std::endl;
         }
         std::cout << "--------------------------------------------" << std::endl;
+    }*/
+
+    // Test de la classe Sudoku avec des grilles générées aléatoirement
+    for (int N : {25}) { // Vous pouvez ajouter d'autres tailles si nécessaire
+        for (int complexity = 1; complexity <= 5; complexity++) {
+            auto start = std::chrono::high_resolution_clock::now();
+
+            Sudoku sudoku(N, complexity);
+
+            std::cout << "Grille generee avec un niveau de complexite " << complexity << " et une taille de " << N << "x" << N << " :" << std::endl;
+
+            // Résoudre la grille
+            if (sudoku.solve()) {
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> duration = end - start;
+
+                std::cout << "\nGrille resolue en " << duration.count() << " secondes.\n";
+                std::cout << sudoku << std::endl;
+            } else {
+                std::cout << "\nLa grille n'a pas de solution.\n" << sudoku << std::endl;
+            }
+
+            std::cout << "--------------------------------------------\n";
+        }
     }
 
     return 0;

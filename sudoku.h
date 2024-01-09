@@ -2,18 +2,19 @@
 
 #include <iostream>
 #include <array>
+#include <vector>
 
 class Sudoku {
 private:
-    std::array<std::array<int, 9>, 9> grid; // Utilisation d'un tableau bidimensionnel de 9*9
+    std::vector<std::vector<int>> grid; // Utilisation d'un tableau bidimensionnel de 9*9
     int recursiveCalls = 0; // Nombre d'appels récursifs pour la résolution de la grille
 
 public:
     // Constructeur par défaut initialisant la grille avec des valeurs nulles
-    Sudoku();
+    Sudoku(int N);
 
     // Constructeur avec niveau de complexité pour la génération de la grille
-    Sudoku(int complexity);
+    Sudoku(int N, int complexity);
 
     // Surcharge de l'opérateur << pour afficher la grille Sudoku
     friend std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku);

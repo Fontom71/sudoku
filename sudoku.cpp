@@ -1,20 +1,45 @@
 #include "Sudoku.h"
 #include <random>
+#include <iomanip>
 
-Sudoku::Sudoku() {
+Sudoku::Sudoku(int N) {
     // Initialisation de la grille avec des valeurs nulles
-    grid.fill({{0, 0, 0, 0, 0, 0, 0, 0, 0}});
-}
+    grid = std::vector<std::vector<int>>(N, std::vector<int>(N, 0));
 
-Sudoku::Sudoku(int complexity) : Sudoku() {
-    // Génération de la grille en fonction du niveau de complexité
+    // Génération de la grille
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(1, 9);
+    std::uniform_int_distribution<int> dist(1, N);
 
-    // Le niveau de complexité détermine le nombre de cases pré-remplies, plus la complexité est élevée, moins il y a de cases pré-remplies
-    int minFilledCells = 20 - complexity * 5;
-    int maxFilledCells = 30 - complexity * 5;
+    // Génération des cases pré-remplies
+    for (int i = 0; i < 30; i++) {
+        int row = dist(gen) - 1;
+        int col = dist(gen) - 1;
+        int value = dist(gen);
+
+        // Assurez-vous que la valeur générée est valide dans la ligne, la colonne et le carré
+        if (isSafe(row, col, value)) {
+            grid[row][col] = value;
+        } else {
+            // Si la valeur n'est pas valide, réessayez avec une nouvelle valeur
+            i--;
+        }
+    }
+}
+
+Sudoku::Sudoku(int N, int complexity) {
+    // Initialisation de la grille avec des valeurs nulles
+    grid = std::vector<std::vector<int>>(N, std::vector<int>(N, 0));
+
+    // Génération de la grille
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(1, grid.size());
+
+    // Le niveau de complexité détermine le nombre de cases pré-remplies, plus la complexité est élevée, moins il y a de cases pré-remplies, par rapport à la taille de la grille, ne dois pas être inférieur à 1
+    int minFilledCells = static_cast<int>(std::pow(grid.size(), 2) / 10) * complexity;
+    int maxFilledCells = static_cast<int>(std::pow(grid.size(), 2) / 5) * complexity;
+
 
     std::uniform_int_distribution<int> cellsDist(minFilledCells, maxFilledCells);
 
@@ -38,19 +63,34 @@ Sudoku::Sudoku(int complexity) : Sudoku() {
 
 std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku) {
     // Affichage de la grille et encadrement des carrés élémentaires
-    for (int row = 0; row < 9; row++) {
-        if (row % 3 == 0) {
-            os << " -----------------------" << std::endl;
+    int sqrt = std::sqrt(sudoku.grid.size());
+    int maxNumWidth = static_cast<int>(std::log10(sudoku.grid.size())) + 1;
+
+    for (int row = 0; row < static_cast<int>(sudoku.grid.size()); row++) {
+        if (row % sqrt == 0) {
+            for (int i = 0; i < sqrt; i++) {
+                os << "+";
+                for (int j = 0; j < sqrt * (maxNumWidth + 2) - (sqrt - 1); j++) {
+                    os << "-";
+                }
+            }
+            os << "+" << std::endl;
         }
-        for (int col = 0; col < 9; col++) {
-            if (col % 3 == 0) {
+        for (int col = 0; col < static_cast<int>(sudoku.grid.size()); col++) {
+            if (col % sqrt == 0) {
                 os << "| ";
             }
-            os << sudoku.grid[row][col] << " ";
+            os << std::setw(maxNumWidth) << sudoku.grid[row][col] << " ";
         }
         os << "|" << std::endl;
     }
-    os << " -----------------------" << std::endl;
+    for (int i = 0; i < sqrt; i++) {
+        os << "+";
+        for (int j = 0; j < sqrt * (maxNumWidth + 2) - (sqrt - 1); j++) {
+            os << "-";
+        }
+    }
+    os << "+" << std::endl;
 
     return os;
 }
@@ -60,7 +100,7 @@ bool Sudoku::isSafe(int row, int col, int value) const {
 }
 
 bool Sudoku::isValidInRow(int row, int value) const {
-    for (int col = 0; col < 9; ++col) {
+    for (int col = 0; col < static_cast<int>(grid.size()); col++) {
         if (grid[row][col] == value) {
             return false;
         }
@@ -69,7 +109,7 @@ bool Sudoku::isValidInRow(int row, int value) const {
 }
 
 bool Sudoku::isValidInCol(int col, int value) const {
-    for (int row = 0; row < 9; ++row) {
+    for (int row = 0; row < static_cast<int>(grid.size()); row++) {
         if (grid[row][col] == value) {
             return false;
         }
@@ -78,11 +118,12 @@ bool Sudoku::isValidInCol(int col, int value) const {
 }
 
 bool Sudoku::isValidInBox(int row, int col, int value) const {
-    int startRow = 3 * (row / 3);
-    int startCol = 3 * (col / 3);
+    int sqrtN = std::sqrt(grid.size());
+    int startRow = row - row % sqrtN;
+    int startCol = col - col % sqrtN;
 
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
+    for (int i = 0; i < sqrtN; i++) {
+        for (int j = 0; j < sqrtN; j++) {
             if (grid[startRow + i][startCol + j] == value) {
                 return false;
             }
@@ -102,8 +143,8 @@ bool Sudoku::solve()
         return true;
     }
 
-    // On teste les valeurs de 1 à 9
-    for (int value = 1; value <= 9; ++value) {
+    // On teste les valeurs de 1 à la taille de la grille
+    for (int value = 1; value <= static_cast<int>(grid.size()); value++) {
         // Si la valeur est valide, on l'assigne à la case
         if (isSafe(row, col, value)) {
             grid[row][col] = value;
@@ -123,8 +164,8 @@ bool Sudoku::solve()
 }
 
 bool Sudoku::findUnassignedLocation(int& row, int& col) const {
-    for (row = 0; row < 9; ++row) {
-        for (col = 0; col < 9; ++col) {
+    for (row = 0; row < static_cast<int>(grid.size()); row++) {
+        for (col = 0; col < static_cast<int>(grid.size()); col++) {
             if (grid[row][col] == 0) {
                 return true;
             }
