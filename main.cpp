@@ -1,70 +1,48 @@
+// main.cpp
 #include "Sudoku.h"
 #include <iostream>
-#include <chrono>
+#include <cmath>
 
 int main() {
-    // Test de la classe Sudoku
-    /*Sudoku sudoku;
+    try {
+        // Ask the user for the size of the Sudoku grid
+        int gridSize;
+        std::cout << "Enter the size of the Sudoku grid (e.g., 9 for 9x9): ";
+        std::cin >> gridSize;
 
-    // Affichage de la grille générée
-    std::cout << "Grille generee :" << std::endl;
-    std::cout << sudoku;
-
-    // Test des nouvelles fonctions
-    int testRow = 3;
-    int testCol = 4;
-    int testValue = 6;
-
-    std::cout << "Test de placement pour la valeur " << testValue
-              << " dans la case (" << testRow << ", " << testCol << "): ";
-
-    if (sudoku.isSafe(testRow, testCol, testValue)) {
-        std::cout << "Valide." << std::endl;
-    } else {
-        std::cout << "Invalide." << std::endl;
-    }
-
-    // Test de la résolution de grilles Sudoku avec différents niveaux de complexité
-    for (int complexity = 1; complexity <= 5; complexity++) {
-        Sudoku sudoku(complexity);
-
-        std::cout << "Grille generee avec un niveau de complexite " << complexity << ":" << std::endl;
-        std::cout << sudoku;
-
-        auto start = std::chrono::high_resolution_clock::now();
-        if (sudoku.solve()) {
-            auto end = std::chrono::high_resolution_clock::now();
-            std::cout << "Grille resolue en " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms :" << std::endl;
-            std::cout << "Nombre d'appels recursifs : " << sudoku.getRecursiveCalls() << std::endl;
-            std::cout << sudoku;
-        } else {
-            std::cout << "Grille non resolue." << std::endl;
+        // Validate the size of the Sudoku grid
+        if (gridSize <= 0 || gridSize % static_cast<int>(sqrt(gridSize)) != 0) {
+            std::cerr << "Error: Invalid grid size. It should be a positive perfect square.\n";
+            return 1;
         }
-        std::cout << "--------------------------------------------" << std::endl;
-    }*/
 
-    // Test de la classe Sudoku avec des grilles générées aléatoirement
-    for (int N : {25}) { // Vous pouvez ajouter d'autres tailles si nécessaire
-        for (int complexity = 1; complexity <= 5; complexity++) {
-            auto start = std::chrono::high_resolution_clock::now();
+        // Ask the user for the complexity level
+        int complexity;
+        std::cout << "Enter the complexity level (1 to 5, where 1 is the easiest and 5 is the hardest): ";
+        std::cin >> complexity;
 
-            Sudoku sudoku(N, complexity);
-
-            std::cout << "Grille generee avec un niveau de complexite " << complexity << " et une taille de " << N << "x" << N << " :" << std::endl;
-
-            // Résoudre la grille
-            if (sudoku.solve()) {
-                auto end = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> duration = end - start;
-
-                std::cout << "\nGrille resolue en " << duration.count() << " secondes.\n";
-                std::cout << sudoku << std::endl;
-            } else {
-                std::cout << "\nLa grille n'a pas de solution.\n" << sudoku << std::endl;
-            }
-
-            std::cout << "--------------------------------------------\n";
+        // Validate the complexity level
+        if (complexity < 1 || complexity > 5) {
+            std::cerr << "Error: Invalid complexity level. It should be between 1 and 5.\n";
+            return 1;
         }
+
+        // Create a Sudoku object with the specified grid size
+        Sudoku sudoku(gridSize);
+
+        // Generate a Sudoku grid with the specified complexity
+        sudoku.generateGrid(complexity);
+
+        // Display the generated grid
+        std::cout << "Generated Sudoku Grid:\n" << sudoku << std::endl;
+
+        // Solve the Sudoku grid
+        sudoku.solve();
+
+        // Display the solved grid
+        std::cout << "Solved Sudoku Grid:\n" << sudoku << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 
     return 0;

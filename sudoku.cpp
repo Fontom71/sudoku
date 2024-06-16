@@ -1,72 +1,35 @@
+// Sudoku.cpp
 #include "Sudoku.h"
-#include <random>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 #include <iomanip>
 
-Sudoku::Sudoku(int N) {
-    // Initialisation de la grille avec des valeurs nulles
-    grid = std::vector<std::vector<int>>(N, std::vector<int>(N, 0));
-
-    // Génération de la grille
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(1, N);
-
-    // Génération des cases pré-remplies
-    for (int i = 0; i < 30; i++) {
-        int row = dist(gen) - 1;
-        int col = dist(gen) - 1;
-        int value = dist(gen);
-
-        // Assurez-vous que la valeur générée est valide dans la ligne, la colonne et le carré
-        if (isSafe(row, col, value)) {
-            grid[row][col] = value;
-        } else {
-            // Si la valeur n'est pas valide, réessayez avec une nouvelle valeur
-            i--;
+Sudoku::Sudoku(int n) : size(n) {
+    // Initialize the grid with zeros
+    grid = new int*[size];
+    for (int i = 0; i < size; i++) {
+        grid[i] = new int[size];
+        for (int j = 0; j < size; j++) {
+            grid[i][j] = 0;
         }
     }
 }
 
-Sudoku::Sudoku(int N, int complexity) {
-    // Initialisation de la grille avec des valeurs nulles
-    grid = std::vector<std::vector<int>>(N, std::vector<int>(N, 0));
-
-    // Génération de la grille
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(1, grid.size());
-
-    // Le niveau de complexité détermine le nombre de cases pré-remplies, plus la complexité est élevée, moins il y a de cases pré-remplies, par rapport à la taille de la grille, ne dois pas être inférieur à 1
-    int minFilledCells = static_cast<int>(std::pow(grid.size(), 2) / 10) * complexity;
-    int maxFilledCells = static_cast<int>(std::pow(grid.size(), 2) / 5) * complexity;
-
-
-    std::uniform_int_distribution<int> cellsDist(minFilledCells, maxFilledCells);
-
-    int filledCells = cellsDist(gen);
-
-    // Génération des cases pré-remplies
-    for (int i = 0; i < filledCells; i++) {
-        int row = dist(gen) - 1;
-        int col = dist(gen) - 1;
-        int value = dist(gen);
-
-        // Assurez-vous que la valeur générée est valide dans la ligne, la colonne et le carré
-        if (isSafe(row, col, value)) {
-            grid[row][col] = value;
-        } else {
-            // Si la valeur n'est pas valide, réessayez avec une nouvelle valeur
-            i--;
-        }
+Sudoku::~Sudoku() {
+    for (int i = 0; i < size; i++) {
+        delete[] grid[i];
     }
+    delete[] grid;
 }
 
 std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku) {
     // Affichage de la grille et encadrement des carrés élémentaires
-    int sqrt = std::sqrt(sudoku.grid.size());
-    int maxNumWidth = static_cast<int>(std::log10(sudoku.grid.size())) + 1;
+    int sqrt = std::sqrt(sudoku.size);
+    std::cout << sudoku.size << std::endl;
+    int maxNumWidth = static_cast<int>(std::log10(sudoku.size)) + 1;
 
-    for (int row = 0; row < static_cast<int>(sudoku.grid.size()); row++) {
+    for (int row = 0; row < static_cast<int>(sudoku.size); row++) {
         if (row % sqrt == 0) {
             for (int i = 0; i < sqrt; i++) {
                 os << "+";
@@ -76,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku) {
             }
             os << "+" << std::endl;
         }
-        for (int col = 0; col < static_cast<int>(sudoku.grid.size()); col++) {
+        for (int col = 0; col < static_cast<int>(sudoku.size); col++) {
             if (col % sqrt == 0) {
                 os << "| ";
             }
@@ -95,36 +58,22 @@ std::ostream& operator<<(std::ostream& os, const Sudoku& sudoku) {
     return os;
 }
 
-bool Sudoku::isSafe(int row, int col, int value) const {
-    return isValidInRow(row, value) && isValidInCol(col, value) && isValidInBox(row, col, value);
-}
-
-bool Sudoku::isValidInRow(int row, int value) const {
-    for (int col = 0; col < static_cast<int>(grid.size()); col++) {
-        if (grid[row][col] == value) {
+bool Sudoku::isValueValid(int value, int x, int y) {
+    // Check if the value is present in the same row or column
+    for (int i = 0; i < size; i++) {
+        if (grid[x][i] == value || grid[i][y] == value) {
             return false;
         }
     }
-    return true;
-}
 
-bool Sudoku::isValidInCol(int col, int value) const {
-    for (int row = 0; row < static_cast<int>(grid.size()); row++) {
-        if (grid[row][col] == value) {
-            return false;
-        }
-    }
-    return true;
-}
+    // Check if the value is present in the same subgrid
+    int subgridSize = static_cast<int>(sqrt(size));
+    int startX = x - x % subgridSize;
+    int startY = y - y % subgridSize;
 
-bool Sudoku::isValidInBox(int row, int col, int value) const {
-    int sqrtN = std::sqrt(grid.size());
-    int startRow = row - row % sqrtN;
-    int startCol = col - col % sqrtN;
-
-    for (int i = 0; i < sqrtN; i++) {
-        for (int j = 0; j < sqrtN; j++) {
-            if (grid[startRow + i][startCol + j] == value) {
+    for (int i = 0; i < subgridSize; i++) {
+        for (int j = 0; j < subgridSize; j++) {
+            if (grid[startX + i][startY + j] == value) {
                 return false;
             }
         }
@@ -133,47 +82,70 @@ bool Sudoku::isValidInBox(int row, int col, int value) const {
     return true;
 }
 
-bool Sudoku::solve()
-{
-    recursiveCalls++;
-    int row, col;
+bool Sudoku::isValidPlacement(int value, int x, int y) {
+    return grid[x][y] == 0 && isValueValid(value, x, y);
+}
 
-    // Si la grille est complétée, on a terminé
-    if (!findUnassignedLocation(row, col)) {
-        return true;
-    }
+void Sudoku::generateGrid(int complexity) {
+        srand(static_cast<unsigned int>(time(nullptr)));
 
-    // On teste les valeurs de 1 à la taille de la grille
-    for (int value = 1; value <= static_cast<int>(grid.size()); value++) {
-        // Si la valeur est valide, on l'assigne à la case
-        if (isSafe(row, col, value)) {
-            grid[row][col] = value;
+        int minFilledCells = 81 - 10 * complexity;
+        int maxFilledCells = 81 - 5 * complexity;
+        int filledCells = minFilledCells + rand() % (maxFilledCells - minFilledCells + 1);
 
-            // On récursive sur le reste de la grille
-            if (solve()) {
-                return true;
+        for (int i = 0; i < filledCells; i++) {
+            int x = rand() % size;
+            int y = rand() % size;
+            int value = rand() % size + 1;
+
+            // Keep trying until a valid placement is found or a limit is reached
+            int attempts = 0;
+            const int maxAttempts = 10;  // Adjust as needed
+
+            while (!isValidPlacement(value, x, y) && attempts < maxAttempts) {
+                x = rand() % size;
+                y = rand() % size;
+                value = rand() % size + 1;
+                attempts++;
             }
 
-            // Si la récursion échoue, on réinitialise la case
-            grid[row][col] = 0;
+            if (isValidPlacement(value, x, y)) {
+                grid[x][y] = value;
+            }
+            // If the limit is reached, you may choose to handle it appropriately.
+            // For example, break out of the loop or reset the grid and start over.
         }
     }
 
-    // Si aucune valeur n'est valide, on retourne false
-    return false;
+bool Sudoku::solve() {
+    // Dummy code for illustration purposes
+    // Start solving from the first cell
+    return solveHelper(0, 0);
 }
 
-bool Sudoku::findUnassignedLocation(int& row, int& col) const {
-    for (row = 0; row < static_cast<int>(grid.size()); row++) {
-        for (col = 0; col < static_cast<int>(grid.size()); col++) {
-            if (grid[row][col] == 0) {
+bool Sudoku::solveHelper(int x, int y) {
+    // Dummy code for illustration purposes
+    // This code simply marks all empty cells as 1
+    if (x == size) {
+        x = 0;
+        if (y++ == size) {
+            return true;
+        }
+    }
+
+    if (grid[x][y] != 0) {
+        return solveHelper(x + 1, y);
+    }
+
+    for (int value = 1; value <= size; value++) {
+        if (isValueValid(value, x, y)) {
+            grid[x][y] = value;
+            if (solveHelper(x + 1, y)) {
                 return true;
             }
         }
     }
-    return false;
-}
 
-int Sudoku::getRecursiveCalls() const {
-    return recursiveCalls;
+    grid[x][y] = 0;
+    return false;
 }
